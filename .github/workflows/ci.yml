@@ -1,93 +1,46 @@
-name: DevOps Java CI Automation Pipeline 
+name: DevOps Java CI Automation Pipeline
 
- 
+# Trigger conditions for workflow execution
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
-# Define the precise trigger conditions for execution flow 
+jobs:
+  build-and-validate:
+    # Provision an isolated Ubuntu virtual environment
+    runs-on: ubuntu-latest
 
-on: 
+    steps:
+      # Step 1: Check out source code onto runner workspace
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-  push: 
+      # Step 2: Provision JDK 17 and configure Maven dependency caching
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
 
-    branches: [ "main" ] 
+      # Step 3: Compile source code
+      - name: Compile Code Base
+        run: mvn clean compile
 
-  pull_request: 
+      # Step 4: Execute automated JUnit 5 test suites
+      - name: Run Automated Test Suites
+        run: mvn test
 
-    branches: [ "main" ] 
+      # Step 5: Package application into an executable JAR
+      - name: Package Executable Distribution
+        run: mvn package
 
- 
-
-jobs: 
-
-  build-and-validate: 
-
-    # Provision a clean, isolated virtual environment runner 
-
-    runs-on: ubuntu-latest 
-
- 
-
-    steps: 
-
-    # Step 1: Check out the repository source files onto the runner workspace 
-
-    - name: Checkout Source Code 
-
-      uses: actions/checkout@v4 
-
- 
-
-    # Step 2: Establish the precise Java Runtime Environment environment 
-
-    - name: Set up JDK 17 
-
-      uses: actions/setup-java@v4 
-
-      with: 
-
-        java-version: '17' 
-
-        distribution: 'temurin' 
-
-        # Automates dependency caching to drastically optimize pipeline velocity 
-
-        cache: 'maven' 
-
- 
-
-    # Step 3: Run the automated static syntax verification phase 
-
-    - name: Compile Code Base 
-
-      run: mvn clean compile 
-
- 
-
-    # Step 4: Run the test suites via the automated plugin setup 
-
-    - name: Run Automated Test Suites 
-
-      run: mvn test 
-
- 
-
-    # Step 5: Package the application into an executable artifact 
-
-    - name: Package Executable Distribution 
-
-      run: mvn package 
-
- 
-
-    # Step 6: Persist the built artifact across workflow executions 
-
-    - name: Upload Build Artifact for Verification 
-
-      uses: actions/artifacts@v4	 
-
-        name: production-ready-jar 
-
-        path: target/*.jar 
-
-        retention-days: 5 
-
- 
+      # Step 6: Persist the built artifact across workflow executions
+      - name: Upload Build Artifact for Verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-ready-jar
+          path: target/*.jar
+          retention-days: 5
