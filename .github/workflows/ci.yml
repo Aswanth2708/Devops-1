@@ -1,6 +1,5 @@
 name: DevOps Java CI Automation Pipeline
 
-# Trigger conditions for workflow execution
 on:
   push:
     branches: [ "main" ]
@@ -9,38 +8,22 @@ on:
 
 jobs:
   build-and-validate:
-    # Provision an isolated Ubuntu virtual environment
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        java-version: [17, 21]
+
     steps:
-      # Step 1: Check out source code onto runner workspace
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # Step 2: Provision JDK 17 and configure Maven dependency caching
-      - name: Set up JDK 17
+      - name: Setup JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
           cache: 'maven'
 
-      # Step 3: Compile source code
-      - name: Compile Code Base
-        run: mvn clean compile
-
-      # Step 4: Execute automated JUnit 5 test suites
       - name: Run Automated Test Suites
         run: mvn test
-
-      # Step 5: Package application into an executable JAR
-      - name: Package Executable Distribution
-        run: mvn package
-
-      # Step 6: Persist the built artifact across workflow executions
-      - name: Upload Build Artifact for Verification
-        uses: actions/upload-artifact@v4
-        with:
-          name: production-ready-jar
-          path: target/*.jar
-          retention-days: 5
