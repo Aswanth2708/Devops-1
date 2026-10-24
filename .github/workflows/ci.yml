@@ -1,0 +1,93 @@
+name: DevOps Java CI Automation Pipeline 
+
+ 
+
+# Define the precise trigger conditions for execution flow 
+
+on: 
+
+  push: 
+
+    branches: [ "main" ] 
+
+  pull_request: 
+
+    branches: [ "main" ] 
+
+ 
+
+jobs: 
+
+  build-and-validate: 
+
+    # Provision a clean, isolated virtual environment runner 
+
+    runs-on: ubuntu-latest 
+
+ 
+
+    steps: 
+
+    # Step 1: Check out the repository source files onto the runner workspace 
+
+    - name: Checkout Source Code 
+
+      uses: actions/checkout@v4 
+
+ 
+
+    # Step 2: Establish the precise Java Runtime Environment environment 
+
+    - name: Set up JDK 17 
+
+      uses: actions/setup-java@v4 
+
+      with: 
+
+        java-version: '17' 
+
+        distribution: 'temurin' 
+
+        # Automates dependency caching to drastically optimize pipeline velocity 
+
+        cache: 'maven' 
+
+ 
+
+    # Step 3: Run the automated static syntax verification phase 
+
+    - name: Compile Code Base 
+
+      run: mvn clean compile 
+
+ 
+
+    # Step 4: Run the test suites via the automated plugin setup 
+
+    - name: Run Automated Test Suites 
+
+      run: mvn test 
+
+ 
+
+    # Step 5: Package the application into an executable artifact 
+
+    - name: Package Executable Distribution 
+
+      run: mvn package 
+
+ 
+
+    # Step 6: Persist the built artifact across workflow executions 
+
+    - name: Upload Build Artifact for Verification 
+
+      uses: actions/artifacts@v4	 
+
+        name: production-ready-jar 
+
+        path: target/*.jar 
+
+        retention-days: 5 
+
+ 
