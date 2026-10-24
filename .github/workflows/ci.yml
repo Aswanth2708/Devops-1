@@ -49,3 +49,4 @@ jobs:
         run: |
           echo "CI tests passed. Deploying straight to Production automatically..."
           docker-compose up -d --force-recreate
+EOF
